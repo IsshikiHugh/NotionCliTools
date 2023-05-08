@@ -8,3 +8,7 @@ word-cards:
       definition: B
       tags: C
       date: D
+  tags-mem:
+    - tag1
+    - tag2
+    - tag3
