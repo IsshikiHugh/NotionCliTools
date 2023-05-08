@@ -1,0 +1,11 @@
+# config files
+config.yaml
+
+# __pycache__
+__pycache__
+
+# .vscode
+.vscode
+
+# .DS_Store
+.DS_Store

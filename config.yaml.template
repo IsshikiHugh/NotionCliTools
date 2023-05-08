@@ -1,0 +1,10 @@
+notion-token: secret_xxx...
+
+word-cards:
+  db: 
+    link: https://www.notion.so/{workspace_name}/{database_id}?v={view_id}
+    properties: 
+      words: A
+      definition: B
+      tags: C
+      date: D
