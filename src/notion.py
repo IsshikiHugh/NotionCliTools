@@ -15,6 +15,7 @@ def insert_record(db:str, data):
         db (str): The database id.
         data (dict): The data to be inserted.
     """
+
     conf.client.pages.create(**{
         "parent": {
             "database_id": db

@@ -3,7 +3,7 @@ from pprint import pprint
 from config import conf
 from datetime import date
 
-from wc import WordCard
+from wc import WordCard, google_trans
 import notion
 
 def welcome_page():
@@ -53,17 +53,68 @@ def wc_insert_page():
     ]
     wc.word = prompt(questions)['word']
     
+    # Choose the translation mode.
     questions = [
         {
-            'type': 'editor',
-            'name': 'definition',
-            'message': 'Please give the definition of the word or phrase!',
-            'default': '\n\n Definition of ' + wc.word + '.\n',
-            'eargs': {
-                'editor':'vim',
-                'ext':'.cache'
+            'type': 'expand',
+            'name': 'auto-translate',
+            'message': 'Do you want to use auto translate or edit yourself?',
+            'default': 'g',
+            'choices': [
+                {
+                    'key': 'g',
+                    'name': 'Use google translate.',
+                    'value': 'google-translate'
+                },
+                {
+                    'key': 'e',
+                    'name': 'Edit yourself.',
+                    'value': 'edit-yourself'
+                }
+            ]
+        }
+    ]
+    
+    trans_mode = prompt(questions)['auto-translate']
+    if trans_mode == 'google-translate':
+        questions = [
+            {
+                'type': 'list',
+                'name': 'trans-lang',
+                'message': 'Which is source language?',
+                'default': 'English 👉 中文',
+                'choices': [
+                    {
+                        'name': 'English 👉 中文',
+                        'value': ['en', 'zh-CN'],
+                    },
+                    {
+                        'name': '中文 👉 English',
+                        'value': ['zh-CN', 'en'],
+                    }
+                ],
+            }
+        ]
+        sl, tl = prompt(questions)['trans-lang']
+        wc.definition = google_trans(sl, tl, wc.word)
+        print('auto-translate result: ' + str(wc.definition))
+    elif trans_mode == 'edit-yourself':
+        questions = [
+            {
+                'type': 'editor',
+                'name': 'definition',
+                'message': 'Please give the definition of the word or phrase!',
+                'default': '',
+                'eargs': {
+                    'editor':'vim',
+                    'ext':'.cache'
+                },
             },
-        },
+        ]
+        wc.definition = prompt(questions)['definition']
+
+    # Choose the tag of the word.
+    questions = [
         {
             'type': 'rawlist',
             'name': 'tags',
@@ -71,8 +122,11 @@ def wc_insert_page():
             'choices': conf.wc['tags-mem'],
         },
     ]
-    answers = prompt(questions)
-    wc.definition = answers['definition']
-    wc.tags = answers['tags']
+    
+    wc.tags = prompt(questions)['tags']
+    
+    # Get the note data.
     wc.date = date.today().strftime("%Y-%m-%d")
+    
+    # Insert to database.
     wc.insert2db()
